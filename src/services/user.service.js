@@ -82,9 +82,7 @@ export const getAllProviders = async () => {
 
 export const getProviderById = async (uid) => {
   try {
-    const snapshot = await getDoc(
-      doc(db, "users", uid)
-    );
+    const snapshot = await getDoc(doc(db, "users", uid));
 
     if (!snapshot.exists()) {
       return {
@@ -112,14 +110,45 @@ export const getProviderById = async (uid) => {
 };
 
 /* ===================================================
+   Get Provider Services
+=================================================== */
+
+export const getProviderServices = async (providerId) => {
+  try {
+    const q = query(
+      collection(db, "services"),
+      where("providerId", "==", providerId)
+    );
+
+    const snapshot = await getDocs(q);
+
+    const services = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return {
+      success: true,
+      services,
+    };
+  } catch (error) {
+    console.error(error);
+
+    return {
+      success: false,
+      services: [],
+      error: error.message,
+    };
+  }
+};
+
+/* ===================================================
    Get User By ID
 =================================================== */
 
 export const getUserById = async (uid) => {
   try {
-    const snapshot = await getDoc(
-      doc(db, "users", uid)
-    );
+    const snapshot = await getDoc(doc(db, "users", uid));
 
     if (!snapshot.exists()) {
       return {
@@ -150,10 +179,7 @@ export const getUserById = async (uid) => {
    Update User Role
 =================================================== */
 
-export const updateUserRole = async (
-  uid,
-  role
-) => {
+export const updateUserRole = async (uid, role) => {
   try {
     await updateDoc(doc(db, "users", uid), {
       role,
